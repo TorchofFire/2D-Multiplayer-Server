@@ -3,6 +3,7 @@ import { timeManagerService } from './services/timeManager.service';
 import { mapService } from './services/map.service';
 import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
+require('dotenv').config();
 
 console.log('starting server...');
 
@@ -18,7 +19,7 @@ engine.gravity.y = 0.5;
 
 mapService.createLevel();
 
-const wss = new WebSocketServer({ host: '', port: 8080 });
+const wss = new WebSocketServer({ host: process.env.IP, port: Number(process.env.PORT) });
 console.log(`listening on ${`${wss.options.host}:${wss.options.port}`}`);
 
 wss.on('connection', ws => {
