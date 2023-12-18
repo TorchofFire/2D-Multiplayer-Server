@@ -3,6 +3,8 @@ import { timeManagerService } from './services/timeManager.service';
 import { mapService } from './services/map.service';
 import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
+import { WSPacketToServer } from './types/WSPacket.type';
+import { connectionManagerService } from './services/connectionManager.service';
 require('dotenv').config();
 
 console.log('starting server...');
@@ -22,14 +24,22 @@ mapService.createLevel();
 const wss = new WebSocketServer({ host: process.env.IP, port: Number(process.env.PORT) });
 console.log(`listening on ${`${wss.options.host}:${wss.options.port}`}`);
 
-wss.on('connection', ws => {
-    console.log('Client connected');
+wss.on('connection', (ws, req) => {
+    const ip = req.socket.remoteAddress;
+    console.log(`Client connected | IP: ${ip}`);
+    if (!ip) {
+        ws.close();
+        return;
+    }
+    connectionManagerService.addNewConnection(ip, ws);
 
     ws.on('message', message => {
-        console.log(`${message}`);
+        const packet = JSON.parse(`${message}`) as WSPacketToServer;
+        console.log(`update from ${packet.username} recieved`);
     });
 
     ws.on('close', () => {
+        connectionManagerService.removeConnection(ip);
         console.log('Client disconnected');
     });
 });
