@@ -1,3 +1,4 @@
+import Matter from 'matter-js';
 import Character from '../objects/character';
 import { WSPlayerPacket } from '../types/WSPacket.type';
 import { connectionManagerService } from './connectionManager.service';
@@ -38,6 +39,12 @@ class PlayersService {
         const connections = connectionManagerService.connections.filter(ws => ws !== ignoreConnection);
         for (const ws of connections) {
             ws.send(JSON.stringify(packet));
+        }
+    }
+
+    public correctPlayers(): void {
+        for (const player of this.players) {
+            Matter.Body.setAngle(player.body, 0);
         }
     }
 }

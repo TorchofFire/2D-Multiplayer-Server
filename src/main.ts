@@ -43,13 +43,14 @@ wss.on('connection', (ws, req) => {
     ws.on('close', () => {
         connectionManagerService.removeConnection(ip);
         playersService.removePlayer(ip);
-        console.log('Client disconnected');
+        console.log(`Client Disconnected | IP: ${ip}`);
     });
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const gameLoop = setInterval(() => {
     timeManagerService.logic();
-    Matter.Engine.update(engine);
+    playersService.correctPlayers();
+    Matter.Engine.update(engine, timeManagerService.deltaTime * 2500);
 
 }, 1000 / 64);
