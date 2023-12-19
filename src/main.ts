@@ -3,8 +3,9 @@ import { timeManagerService } from './services/timeManager.service';
 import { mapService } from './services/map.service';
 import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
-import { WSPacketToServer } from './types/WSPacket.type';
+import { WSPlayerPacket } from './types/WSPacket.type';
 import { connectionManagerService } from './services/connectionManager.service';
+import { playersService } from './services/players.service';
 require('dotenv').config();
 
 console.log('starting server...');
@@ -32,14 +33,16 @@ wss.on('connection', (ws, req) => {
         return;
     }
     connectionManagerService.addNewConnection(ip, ws);
+    playersService.newPlayer(ip);
 
     ws.on('message', message => {
-        const packet = JSON.parse(`${message}`) as WSPacketToServer;
-        console.log(`update from ${packet.username} recieved`);
+        const packet = JSON.parse(`${message}`) as WSPlayerPacket;
+        playersService.updatePlayer(ip, packet);
     });
 
     ws.on('close', () => {
         connectionManagerService.removeConnection(ip);
+        playersService.removePlayer(ip);
         console.log('Client disconnected');
     });
 });
