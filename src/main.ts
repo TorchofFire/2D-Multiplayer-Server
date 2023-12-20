@@ -7,6 +7,7 @@ import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
 import chalk from 'chalk';
 import { isPlayerPacket } from './types/WSPacket.type';
+import { moveableObjectService } from './services/moveableObjects.service';
 require('dotenv').config();
 
 console.log('starting server...');
@@ -52,6 +53,7 @@ wss.on('connection', (ws, req) => {
 const gameLoop = setInterval(() => {
     timeManagerService.logic();
     playersService.correctPlayers();
+    moveableObjectService.sendObjectPackets();
     Matter.Engine.update(engine, timeManagerService.deltaTime * 2500);
 
 }, 1000 / 64);

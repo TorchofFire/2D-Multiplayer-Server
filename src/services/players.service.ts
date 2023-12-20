@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 import Character from '../objects/character';
 import { WSPlayerPacket } from '../types/WSPacket.type';
 import { connectionManagerService } from './connectionManager.service';
+import { world } from '../main';
 
 class PlayersService {
     players: Character[] = [];
@@ -12,6 +13,7 @@ class PlayersService {
         const player = new Character(0, 500);
         this.players.push(player);
         this.playersMap.set(ip, player);
+        Matter.World.add(world, player.body);
     }
 
     public removePlayer(ip: string): void {
@@ -28,8 +30,7 @@ class PlayersService {
             return;
         }
         player.username = packet.username;
-        player.body.position.x = packet.positionX;
-        player.body.position.y = packet.positionY;
+        Matter.Body.setPosition(player.body, { x: packet.positionX, y: packet.positionY });
         Matter.Body.setVelocity(player.body, packet.velocity);
         this.broadcastPlayerUpdate(packet, ip);
     }
