@@ -6,14 +6,15 @@ import figlet from 'figlet';
 import { WSPlayerPacket } from './types/WSPacket.type';
 import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
+import chalk from 'chalk';
 require('dotenv').config();
 
 console.log('starting server...');
 
 figlet.text('Multiplayer Server', { font: 'Big', whitespaceBreak: true }, (err, data) => {
     if (err) return;
-    console.log(data);
-    console.log('Version 0.0.1 | by Torch');
+    console.log(chalk.blue(data));
+    console.log(chalk.blueBright('Version 0.0.1 | by Torch'));
 });
 
 const engine = Matter.Engine.create();
@@ -27,7 +28,7 @@ console.log(`listening on ${`${wss.options.host}:${wss.options.port}`}`);
 
 wss.on('connection', (ws, req) => {
     const ip = req.socket.remoteAddress;
-    console.log(`Client connected | IP: ${ip}`);
+    console.log(chalk.greenBright(`Client connected | IP: ${ip}`));
     if (!ip) {
         ws.close();
         return;
@@ -43,7 +44,7 @@ wss.on('connection', (ws, req) => {
     ws.on('close', () => {
         connectionManagerService.removeConnection(ip);
         playersService.removePlayer(ip);
-        console.log(`Client Disconnected | IP: ${ip}`);
+        console.log(chalk.redBright(`Client Disconnected | IP: ${ip}`));
     });
 });
 
