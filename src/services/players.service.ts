@@ -30,7 +30,7 @@ class PlayersService {
         player.username = packet.username;
         player.body.position.x = packet.positionX;
         player.body.position.y = packet.positionY;
-        player.movement = packet.keypresses;
+        Matter.Body.setVelocity(player.body, packet.velocity);
         this.broadcastPlayerUpdate(packet, ip);
     }
 
