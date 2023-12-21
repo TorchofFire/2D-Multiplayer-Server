@@ -1,6 +1,5 @@
 import readline from 'readline';
 import { messageService } from './message.service';
-import { chalkNeutral } from '../helpers';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -25,7 +24,6 @@ class ServerCommandService {
 
     private sayCommand(message: string): void {
         messageService.broadcastMessage('Server', message);
-        console.log(chalkNeutral(`[Server]: ${message}`));
     }
 }
 

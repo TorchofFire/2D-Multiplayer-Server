@@ -5,10 +5,11 @@ import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
 import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
-import { isPlayerPacket } from './types/WSPacket.type';
+import { isMessagePacket, isPlayerPacket } from './types/WSPacket.type';
 import { moveableObjectService } from './services/moveableObjects.service';
 import { serverCommandService } from './services/serverCommand.service';
 import { chalkImportant } from './helpers';
+import { messageService } from './services/message.service';
 require('dotenv').config();
 
 console.log('starting server...');
@@ -40,7 +41,13 @@ wss.on('connection', (ws, req) => {
 
     ws.on('message', message => {
         const packet = JSON.parse(`${message}`);
-        if (isPlayerPacket(packet)) playersService.updatePlayer(ip, packet);
+        if (isPlayerPacket(packet)) {
+            playersService.updatePlayer(ip, packet);
+            return;
+        }
+        if (isMessagePacket(packet)) {
+            messageService.broadcastMessage(packet.username, packet.message);
+        }
     });
 
     ws.on('close', () => {
