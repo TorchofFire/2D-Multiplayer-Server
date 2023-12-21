@@ -1,8 +1,9 @@
 import Matter from 'matter-js';
 import Character from '../objects/character';
-import { WSPlayerPacket } from '../types/WSPacket.type';
+import { WSPlayerDisconnectPacket, WSPlayerPacket } from '../types/WSPacket.type';
 import { connectionManagerService } from './connectionManager.service';
 import { world } from '../main';
+import chalk from 'chalk';
 
 class PlayersService {
     players: Character[] = [];
@@ -14,6 +15,7 @@ class PlayersService {
         this.players.push(player);
         this.playersMap.set(ip, player);
         Matter.World.add(world, player.body);
+        console.log(chalk.greenBright(`Client connected | IP: ${ip}`));
     }
 
     public removePlayer(ip: string): void {
@@ -21,6 +23,9 @@ class PlayersService {
         if (!removedPlayer) return;
         this.players = this.players.filter(ws => ws !== removedPlayer);
         this.playersMap.delete(ip);
+        Matter.World.remove(world, removedPlayer.body);
+        this.broadcastPlayerLeave({ username: removedPlayer.username! });
+        console.log(chalk.redBright(`Client Disconnected | IP: ${ip} | username: ${removedPlayer.username}`));
     }
 
     public updatePlayer(ip: string, packet: WSPlayerPacket): void {
@@ -30,7 +35,7 @@ class PlayersService {
             return;
         }
         player.username = packet.username;
-        Matter.Body.setPosition(player.body, { x: packet.positionX, y: packet.positionY });
+        Matter.Body.setPosition(player.body, packet.position);
         Matter.Body.setVelocity(player.body, packet.velocity);
         this.broadcastPlayerUpdate(packet, ip);
     }
@@ -39,6 +44,12 @@ class PlayersService {
         const ignoreConnection = connectionManagerService.connectionMap.get(ignoreIp);
         const connections = connectionManagerService.connections.filter(ws => ws !== ignoreConnection);
         for (const ws of connections) {
+            ws.send(JSON.stringify(packet));
+        }
+    }
+
+    private broadcastPlayerLeave(packet: WSPlayerDisconnectPacket): void {
+        for (const ws of connectionManagerService.connections) {
             ws.send(JSON.stringify(packet));
         }
     }

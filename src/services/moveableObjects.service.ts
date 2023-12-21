@@ -12,8 +12,7 @@ class MoveableObjectService {
             // }
             const packet = {
                 moveableObjectlabel: object.label,
-                positionX: object.position.x,
-                positionY: object.position.y,
+                position: object.position,
                 velocity: object.velocity
             };
             this.broadcastObjectUpdate(packet);

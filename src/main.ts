@@ -6,6 +6,7 @@ import figlet from 'figlet';
 import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
 import chalk from 'chalk';
+import readline from 'readline';
 import { isPlayerPacket } from './types/WSPacket.type';
 import { moveableObjectService } from './services/moveableObjects.service';
 require('dotenv').config();
@@ -29,7 +30,6 @@ console.log(`listening on ${`${wss.options.host}:${wss.options.port}`}`);
 
 wss.on('connection', (ws, req) => {
     const ip = req.socket.remoteAddress;
-    console.log(chalk.greenBright(`Client connected | IP: ${ip}`));
     if (!ip) {
         ws.close();
         return;
@@ -45,7 +45,6 @@ wss.on('connection', (ws, req) => {
     ws.on('close', () => {
         connectionManagerService.removeConnection(ip);
         playersService.removePlayer(ip);
-        console.log(chalk.redBright(`Client Disconnected | IP: ${ip}`));
     });
 });
 
@@ -57,3 +56,15 @@ const gameLoop = setInterval(() => {
     Matter.Engine.update(engine, timeManagerService.deltaTime * 2500);
 
 }, 1000 / 64);
+
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    prompt: ''
+});
+
+rl.prompt();
+rl.on('line', line => {
+    console.log(`${line}`);
+    rl.prompt();
+});
