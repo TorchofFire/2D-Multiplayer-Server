@@ -5,18 +5,19 @@ import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
 import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
-import chalk from 'chalk';
-import readline from 'readline';
 import { isPlayerPacket } from './types/WSPacket.type';
 import { moveableObjectService } from './services/moveableObjects.service';
+import { serverCommandService } from './services/serverCommand.service';
+import { chalkImportant } from './helpers';
 require('dotenv').config();
 
 console.log('starting server...');
 
 figlet.text('Multiplayer Server', { font: 'Big', whitespaceBreak: true }, (err, data) => {
     if (err) return;
-    console.log(chalk.blue(data));
-    console.log(chalk.blueBright('Version 0.0.1 | by Torch'));
+    console.log(chalkImportant(data));
+    console.log(chalkImportant('Version 0.0.1 | by Torch'));
+    serverCommandService.init();
 });
 
 const engine = Matter.Engine.create();
@@ -56,15 +57,3 @@ const gameLoop = setInterval(() => {
     Matter.Engine.update(engine, timeManagerService.deltaTime * 2500);
 
 }, 1000 / 64);
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: ''
-});
-
-rl.prompt();
-rl.on('line', line => {
-    console.log(`${line}`);
-    rl.prompt();
-});
