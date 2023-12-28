@@ -6,8 +6,8 @@
   "author": "Torch",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/main.js",
+    "build": "rimraf ./dist && tsc",
+    "start": "yarn build && node dist/main.js",
     "dev": "nodemon src/main.ts"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-unused-imports": "^3.0.0",
     "nodemon": "^3.0.2",
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.2"
   }
 }
