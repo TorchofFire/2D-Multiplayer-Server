@@ -1,6 +1,6 @@
 {
   "name": "multiplayer_server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "src/main.ts",
   "repository": "https://github.com/TorchofFire/2D-Multiplayer-Server.git",
   "author": "Torch",
