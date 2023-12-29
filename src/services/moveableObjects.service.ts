@@ -1,22 +1,30 @@
 import Matter from 'matter-js';
 import { WSMovableObjectPacket } from '../types/WSPacket.type';
 import { connectionManagerService } from './connectionManager.service';
+import { timeManagerService } from './timeManager.service';
 
 class MoveableObjectService {
     objects: Matter.Body[] = [];
+    timeTillNextUpdate = 0;
 
-    public sendObjectPackets(): void {
+    public sendObjectPackets(rate: number): void {
+        this.timeTillNextUpdate -= timeManagerService.deltaTime;
+        if (this.timeTillNextUpdate > 0) return;
+        this.timeTillNextUpdate = rate;
+
+        const packet: WSMovableObjectPacket = { moveableObject: [] };
         for (const object of this.objects) {
-            // if (Math.abs(object.velocity.x) > 0.1 || Math.abs(object.velocity.y) > 0.1) {
-            // put logic in here if too many packets are being sent out
-            // }
-            const packet = {
-                moveableObjectlabel: object.label,
+            if (Math.abs(object.velocity.x) < 0.01 && Math.abs(object.velocity.y) < 0.01) {
+                continue;
+            }
+            packet.moveableObject.push({
+                label: object.label,
                 position: object.position,
                 velocity: object.velocity
-            };
-            this.broadcastObjectUpdate(packet);
+            });
         }
+
+        this.broadcastObjectUpdate(packet);
     }
 
     private broadcastObjectUpdate(packet: WSMovableObjectPacket): void {

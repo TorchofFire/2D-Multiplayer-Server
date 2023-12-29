@@ -27,7 +27,7 @@ engine.gravity.y = 0.5;
 
 mapService.createLevel();
 
-const wss = new WebSocketServer({ host: process.env.IP, port: Number(process.env.PORT) });
+const wss = new WebSocketServer({ host: process.env.IP, port: Number(process.env.PORT) || 8080 });
 console.log(`listening on ${`${wss.options.host}:${wss.options.port}`}`);
 
 wss.on('connection', (ws, req) => {
@@ -56,11 +56,13 @@ wss.on('connection', (ws, req) => {
     });
 });
 
+const simulationRate = Number(process.env.SIMRATE) || 64;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const gameLoop = setInterval(() => {
     timeManagerService.logic();
     playersService.correctPlayers();
-    moveableObjectService.sendObjectPackets();
+    moveableObjectService.sendObjectPackets(.05);
     Matter.Engine.update(engine, timeManagerService.deltaTime * 2500);
 
-}, 1000 / 64);
+}, 1000 / simulationRate);
