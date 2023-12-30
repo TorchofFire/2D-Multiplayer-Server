@@ -12,12 +12,12 @@ class MoveableObjectService {
         if (this.timeTillNextUpdate > 0) return;
         this.timeTillNextUpdate = rate;
 
-        const packet: WSMovableObjectPacket = { moveableObject: [] };
+        const packet: WSMovableObjectPacket = { moveableObjects: [] };
         for (const object of this.objects) {
             if (Math.abs(object.velocity.x) < 0.01 && Math.abs(object.velocity.y) < 0.01) {
                 continue;
             }
-            packet.moveableObject.push({
+            packet.moveableObjects.push({
                 label: object.label,
                 position: object.position,
                 velocity: object.velocity

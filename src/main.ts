@@ -5,19 +5,23 @@ import { WebSocketServer } from 'ws';
 import figlet from 'figlet';
 import { connectionManagerService } from './services/connectionManager.service';
 import { playersService } from './services/players.service';
-import { isMessagePacket, isPlayerPacket } from './types/WSPacket.type';
+import { isHandShakePacket, isMessagePacket, isPlayerPacket } from './types/WSPacket.type';
 import { moveableObjectService } from './services/moveableObjects.service';
 import { serverCommandService } from './services/serverCommand.service';
 import { chalkImportant } from './helpers';
 import { messageService } from './services/message.service';
 require('dotenv').config();
+import fs from 'fs';
+import { initNewPlayerService } from './services/initNewPlayer.service';
+
+export const serverVersion = JSON.parse(fs.readFileSync('./package.json', 'utf-8')).version as string;
 
 console.log('starting server...');
 
 figlet.text('Multiplayer Server', { font: 'Big', whitespaceBreak: true }, (err, data) => {
     if (err) return;
     console.log(chalkImportant(data));
-    console.log(chalkImportant('Version 0.0.1 | by Torch'));
+    console.log(chalkImportant(`Version ${serverVersion} | by Torch`));
     serverCommandService.init();
 });
 
@@ -36,8 +40,6 @@ wss.on('connection', (ws, req) => {
         ws.close();
         return;
     }
-    connectionManagerService.addNewConnection(ip, ws);
-    playersService.newPlayer(ip);
 
     ws.on('message', message => {
         const packet = JSON.parse(`${message}`);
@@ -47,6 +49,10 @@ wss.on('connection', (ws, req) => {
         }
         if (isMessagePacket(packet)) {
             messageService.broadcastMessage(packet.username, packet.message);
+            return;
+        }
+        if (isHandShakePacket(packet)) {
+            initNewPlayerService.handshake(ip, ws, packet);
         }
     });
 

@@ -10,9 +10,10 @@ class ConnectionManagerService {
         this.connectionMap.set(ip, ws);
     }
 
-    public removeConnection(ip: string): void {
+    public removeConnection(ip: string, reason?: string): void {
         const removedConnection = this.connectionMap.get(ip);
         if (!removedConnection) return;
+        if (removedConnection.OPEN) removedConnection.close(1000, reason);
         this.connections = this.connections.filter(ws => ws !== removedConnection);
         this.connectionMap.delete(ip);
     }
